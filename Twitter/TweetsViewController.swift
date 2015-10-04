@@ -8,21 +8,29 @@
 
 import UIKit
 
-class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, TweetCellDelegate {
     
     var tweets: [Tweet]?
     var refreshControl: UIRefreshControl!
+    var composeType: String?
 
     @IBOutlet weak var tableView: UITableView!
     
     @IBAction func onLogout(sender: AnyObject) {
         User.currentUser?.logout()
     }
+    @IBAction func onNew(sender: AnyObject) {
+        composeType = "Compose"
+        performSegueWithIdentifier("tweetCompose", sender: nil)
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.estimatedRowHeight = 100
+        
         refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: "loadTweets", forControlEvents: UIControlEvents.ValueChanged)
         
@@ -33,24 +41,27 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
         loadTweets()
 
     }
+    override func viewWillAppear(animated: Bool) {
+        navigationItem.title = "Home"
+    }
     
     func loadTweets() {
         TwitterClient.sharedInstance.homeTimelineWithParams(nil) { (tweets, error) -> () in
-            self.tweets = tweets
-//            for tweet in tweets! {
-//                print("tweet: \(tweet.text), created: \(tweet.createdAt)")
-//            }
-            self.tableView.reloadData()
-            self.refreshControl.endRefreshing()
-            
+            if error == nil {
+                self.tweets = tweets
+//                for tweet in tweets! {
+//                    print("tweet: \(tweet.text), created: \(tweet.createdAt)")
+//                    print("retweets: \(tweet.retweets!) favorites: \(tweet.favorites!)")
+//                    print("createdAtString: \(tweet.createdAtString!)")
+//                }
+                self.tableView.reloadData()
+                self.refreshControl.endRefreshing()
+            } else {
+                print("ERROR: \(error)")
+            }
         }
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-    
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if tweets != nil {
             return tweets!.count
@@ -63,18 +74,70 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
         let cell = tableView.dequeueReusableCellWithIdentifier("TweetCell", forIndexPath: indexPath) as! TweetCell
 
         cell.tweet = tweets?[indexPath.row]
-        
+        cell.delegate = self
+
         return cell
     }
 
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+    func tweetCell(tweetCell: TweetCell, tweetAction value: String) {
+        
+        if value == "TweetReply" {
+            composeType = "TweetReply"
+            performSegueWithIdentifier("tweetCompose", sender: tweetCell)
+            
+        } else if value == "TweetRetweet" {
+            composeType = "TweetRetweet"
+            performSegueWithIdentifier("tweetCompose", sender: tweetCell)
+            
+        } else if value == "TweetFavorite" {
+            //            performSegueWithIdentifier("tweetCompose", sender: tweetCell)
+            print("tweetCell for favorite, nothing to do for now.")
+        }
+        
     }
-    */
+    
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+//        print(segue.identifier)
+
+        navigationItem.title = nil
+        
+        if segue.identifier == "tweetDetail"{
+            let vc = segue.destinationViewController as! TweetDetailViewController
+            vc.navigationItem.title = "Tweet"
+            navigationItem.title = "Back"
+            
+            let cell = sender as! UITableViewCell
+            let indexPath = tableView.indexPathForCell(cell)
+    
+            let tweet: Tweet
+            tweet = tweets![indexPath!.row]
+    
+            vc.tweet = tweet
+
+        }
+        if segue.identifier == "tweetCompose" {
+            let vc = segue.destinationViewController as! TweetComposeViewController
+            vc.navigationItem.title = "Compose"
+            
+            if composeType == "TweetReply" {
+                vc.navigationItem.title = "Reply"
+            } else if composeType == "TweetRetweet" {
+                vc.navigationItem.title = "Retweet"
+            }
+            navigationItem.title = "Cancel"
+
+            if sender != nil {
+                let cell = sender as! UITableViewCell
+                let indexPath = tableView.indexPathForCell(cell)
+    
+                let tweet: Tweet
+                tweet = tweets![indexPath!.row]
+                
+                vc.tweet = tweet
+            }
+        }
+    
+    }
 
 }
