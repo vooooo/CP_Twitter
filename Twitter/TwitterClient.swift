@@ -17,6 +17,29 @@ class TwitterClient: BDBOAuth1RequestOperationManager {
     
     static let sharedInstance = TwitterClient(baseURL: twitterBaseURL, consumerKey: twitterConsumerKey, consumerSecret: twitterConsumerSecret)
     
+    func tweetStatus(tweet: String, in_reply_to_status_id: String, completion: (tweet: Tweet?, error: NSError?) -> ()) {
+        let escapedTweet = tweet.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())
+        var url = "1.1/statuses/update.json?status=\(escapedTweet!)"
+        
+        if in_reply_to_status_id != "" {
+            let escapedReplyId = in_reply_to_status_id.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())
+            url = "\(url)&in_reply_to_status_id=\(escapedReplyId!)"
+        }
+        
+        POST(url, parameters: nil,
+            success: { (operation: AFHTTPRequestOperation!, response: AnyObject!) -> Void in
+                
+                print("favoritesCreate: \(response)")
+                let tweet = Tweet(dictionary: response as! NSDictionary)
+                completion(tweet: tweet, error: nil)
+                
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) -> Void in
+                print("Error favorites Create")
+                completion(tweet: nil, error: error)
+        })
+    }
+
     func homeTimelineWithParams(params: NSDictionary?, completion: (tweets: [Tweet]?, error: NSError?) -> ()) {
         GET("1.1/statuses/home_timeline.json", parameters: params,
             success: { (operation: AFHTTPRequestOperation!, response: AnyObject!) -> Void in
@@ -32,6 +55,40 @@ class TwitterClient: BDBOAuth1RequestOperationManager {
         })
     }
     
+    func favoritesCreate(id: String, completion: (tweet: Tweet?, error: NSError?) -> ()) {
+        
+        let url = "1.1/favorites/create.json?id=\(id)"
+        POST(url, parameters: nil,
+            success: { (operation: AFHTTPRequestOperation!, response: AnyObject!) -> Void in
+                
+                print("favoritesCreate: \(response)")
+                let tweet = Tweet(dictionary: response as! NSDictionary)
+                completion(tweet: tweet, error: nil)
+                
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) -> Void in
+                print("Error favorites Create")
+                completion(tweet: nil, error: error)
+        })
+    }
+    
+    func retweetWithId(id: String, completion: (tweet: Tweet?, error: NSError?) -> ()) {
+        
+        let url = "1.1/statuses/retweet/\(id).json"
+        POST(url, parameters: nil,
+            success: { (operation: AFHTTPRequestOperation!, response: AnyObject!) -> Void in
+                
+                print("retweetWithId: \(response)")
+                let tweet = Tweet(dictionary: response as! NSDictionary)
+                completion(tweet: tweet, error: nil)
+                
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) -> Void in
+                print("Error attempting retweet")
+                completion(tweet: nil, error: error)
+        })
+    }
+
     func loginWithCompletion(completion: (user: User?, error: NSError?) -> ()) {
         loginCompletion = completion
         

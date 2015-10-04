@@ -26,6 +26,7 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
         tableView.delegate = self
         tableView.dataSource = self
         tableView.rowHeight = UITableViewAutomaticDimension
@@ -49,11 +50,6 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
         TwitterClient.sharedInstance.homeTimelineWithParams(nil) { (tweets, error) -> () in
             if error == nil {
                 self.tweets = tweets
-//                for tweet in tweets! {
-//                    print("tweet: \(tweet.text), created: \(tweet.createdAt)")
-//                    print("retweets: \(tweet.retweets!) favorites: \(tweet.favorites!)")
-//                    print("createdAtString: \(tweet.createdAtString!)")
-//                }
                 self.tableView.reloadData()
                 self.refreshControl.endRefreshing()
             } else {
@@ -84,14 +80,6 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
         if value == "TweetReply" {
             composeType = "TweetReply"
             performSegueWithIdentifier("tweetCompose", sender: tweetCell)
-            
-        } else if value == "TweetRetweet" {
-            composeType = "TweetRetweet"
-            performSegueWithIdentifier("tweetCompose", sender: tweetCell)
-            
-        } else if value == "TweetFavorite" {
-            //            performSegueWithIdentifier("tweetCompose", sender: tweetCell)
-            print("tweetCell for favorite, nothing to do for now.")
         }
         
     }
@@ -122,17 +110,17 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
             
             if composeType == "TweetReply" {
                 vc.navigationItem.title = "Reply"
-            } else if composeType == "TweetRetweet" {
-                vc.navigationItem.title = "Retweet"
             }
             navigationItem.title = "Cancel"
 
             if sender != nil {
+                print("in segue sender block")
                 let cell = sender as! UITableViewCell
                 let indexPath = tableView.indexPathForCell(cell)
     
                 let tweet: Tweet
                 tweet = tweets![indexPath!.row]
+                print(tweet.user!.name)
                 
                 vc.tweet = tweet
             }

@@ -29,11 +29,23 @@ class TweetCell: UITableViewCell {
     }
     
     @IBAction func onRetweet(sender: AnyObject) {
-        tweetActionClicked("TweetRetweet")
+        TwitterClient.sharedInstance.retweetWithId(tweet.tweetId!) { [weak self] (tweets, error) -> () in
+            if error == nil {
+                self!.onRetweetButton.setImage(UIImage(named: "retweet_on.png"), forState: UIControlState.Normal)
+            } else {
+                print("ERROR: \(error)")
+            }
+        }
     }
     
     @IBAction func onFavorite(sender: AnyObject) {
-        tweetActionClicked("TweetFavorite")
+        TwitterClient.sharedInstance.favoritesCreate(tweet.tweetId!) { [weak self] (tweets, error) -> () in
+            if error == nil {
+                self!.onFavoriteButton.setImage(UIImage(named: "favorite_on.png"), forState: UIControlState.Normal)
+            } else {
+                print("ERROR: \(error)")
+            }
+        }
     }
 
     var tweet: Tweet! {
@@ -63,7 +75,6 @@ class TweetCell: UITableViewCell {
 
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
 
     }
 

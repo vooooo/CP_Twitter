@@ -33,11 +33,22 @@ class TweetDetailViewController: UIViewController {
         performSegueWithIdentifier("tweetCompose", sender: tweet)
     }
     @IBAction func doRetweet(sender: AnyObject) {
-        composeType = "TweetRetweet"
-        performSegueWithIdentifier("tweetCompose", sender: tweet)
+        TwitterClient.sharedInstance.retweetWithId(tweet.tweetId!) { [weak self] (tweets, error) -> () in
+            if error == nil {
+                self!.retweetButton.setImage(UIImage(named: "retweet_on.png"), forState: UIControlState.Normal)
+            } else {
+                print("ERROR: \(error)")
+            }
+        }
     }
     @IBAction func doFavorite(sender: AnyObject) {
-        //DO nothing for now
+        TwitterClient.sharedInstance.favoritesCreate(tweet.tweetId!) { [weak self] (tweets, error) -> () in
+            if error == nil {
+                self!.favoriteButton.setImage(UIImage(named: "favorite_on.png"), forState: UIControlState.Normal)
+            } else {
+                print("ERROR: \(error)")
+            }
+        }
     }
     
     

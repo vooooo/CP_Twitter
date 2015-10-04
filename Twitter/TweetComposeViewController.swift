@@ -8,41 +8,65 @@
 
 import UIKit
 
-class TweetComposeViewController: UIViewController {
+class TweetComposeViewController: UIViewController, UITextViewDelegate {
 
-    
+    var tweet: Tweet!
+
     @IBOutlet weak var nameLabel: UILabel!
-    
     @IBOutlet weak var screennameLabel: UILabel!
-    
     @IBOutlet weak var profileImageView: UIImageView!
-    
     @IBOutlet weak var charCountLabel: UILabel!
-    
     @IBOutlet weak var tweetTextView: UITextView!
     
     @IBAction func doTweet(sender: UIBarButtonItem) {
-        print("Submitting Tweet")
+        let status = tweetTextView.text as String
+        print("Submitting Tweet: \(status)")
         
+        var in_reply_to_status_id = ""
+        if tweet != nil {
+            in_reply_to_status_id = tweet.tweetId!
+        }
+        
+        TwitterClient.sharedInstance.tweetStatus(status, in_reply_to_status_id: in_reply_to_status_id) { [weak self] (tweets, error) -> () in
+            if error == nil {
+                self!.view.endEditing(true)
+                self!.navigationController?.popViewControllerAnimated(true)
+            } else {
+                print("ERROR: \(error)")
+            }
+        }
     }
-    
-    var tweet: Tweet!
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        tweetTextView.delegate = self
+        tweetTextView.becomeFirstResponder();
+
         if tweet != nil {
 //            nameLabel.text = tweet.user!.name
 //            profileImageView.setImageWithURL(NSURL(string: tweet.user!.profileImageUrl!))
-//            screennameLabel.text = "@\(tweet.user!.screenname!)"
-            nameLabel.text = User.currentUser?.name
-            profileImageView.setImageWithURL(NSURL(string: User.currentUser!.profileImageUrl!))
-            screennameLabel.text = "@\(User.currentUser!.screenname!)"
+//            let screennameLabel = "@\(tweet.user!.screenname!)"
+            print("in compose VDL")
+            print(tweet.user!.screenname!)
+            
+            tweetTextView.text = "@\(tweet.user!.screenname!)  "
+            
         } else {
-            nameLabel.text = User.currentUser?.name
-            profileImageView.setImageWithURL(NSURL(string: User.currentUser!.profileImageUrl!))
-            screennameLabel.text = "@\(User.currentUser!.screenname!)"
+            tweetTextView.text = ""
         }
+
+        let tweetcount = tweetTextView.text!.characters.count
+        charCountLabel.text = String(tweetcount)
+
+        nameLabel.text = User.currentUser?.name
+        profileImageView.setImageWithURL(NSURL(string: User.currentUser!.profileImageUrl!))
+        screennameLabel.text = "@\(User.currentUser!.screenname!)"
         
+    }
+    
+    func textViewDidChange(textView: UITextView) {
+        let tweetcount = textView.text.characters.count
+        charCountLabel.text = String(tweetcount)
     }
 
     

@@ -25,6 +25,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let vc = storyboard.instantiateViewControllerWithIdentifier("TweetsNavigationController") as! UINavigationController
             window?.rootViewController  = vc
         }
+        
+        UINavigationBar.appearance().barTintColor = UIColor(red: 0x40/255, green: 0x99/255, blue: 0xff/255, alpha: 1.0)
+        UINavigationBar.appearance().tintColor = UIColor.whiteColor()
+        UINavigationBar.appearance().titleTextAttributes = [NSForegroundColorAttributeName : UIColor.whiteColor()]
+
         return true
     }
 

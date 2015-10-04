@@ -19,6 +19,7 @@ class Tweet: NSObject {
     var favorites: String?
     var retweeted: Bool?
     var favorited: Bool?
+    var tweetId: String?
     
     init(dictionary: NSDictionary) {
         super.init()
@@ -37,13 +38,15 @@ class Tweet: NSObject {
         let favoritesInt : Int = dictionary["favorite_count"] as! Int
         favorites = String(favoritesInt)
         
+        let tweetIdInt : Int = dictionary["id"] as! Int
+        self.tweetId = String(tweetIdInt)
+
         let faved : Int = dictionary["favorited"] as! Int
         if faved == 1 {
             favorited = true
         } else {
             favorited = false
         }
-        
         
         let reeted : Int = dictionary["retweeted"] as! Int
         if reeted == 1 {
@@ -63,7 +66,7 @@ class Tweet: NSObject {
         
         return tweets
     }
-    
+
     func formatTimeDetail(date: NSDate) -> String {
         let dateFormatter = NSDateFormatter()
         dateFormatter.dateFormat = "M/d/yy, h:mm a"
