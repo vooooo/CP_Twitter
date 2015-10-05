@@ -31,5 +31,5 @@ Time spent: `<Number of hours spent>`
 
 ### Walkthrough
 
-![Video Walkthrough](...)
+![Video Walkthrough](https://raw.githubusercontent.com/vooooo/CP_Twitter/master/CP_Twitter.gif?raw=true)
 
