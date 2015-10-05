@@ -29,7 +29,7 @@ class TwitterClient: BDBOAuth1RequestOperationManager {
         POST(url, parameters: nil,
             success: { (operation: AFHTTPRequestOperation!, response: AnyObject!) -> Void in
                 
-                print("favoritesCreate: \(response)")
+                print("tweetStatus: \(response)")
                 let tweet = Tweet(dictionary: response as! NSDictionary)
                 completion(tweet: tweet, error: nil)
                 

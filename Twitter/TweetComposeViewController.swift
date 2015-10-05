@@ -43,10 +43,6 @@ class TweetComposeViewController: UIViewController, UITextViewDelegate {
         tweetTextView.becomeFirstResponder();
 
         if tweet != nil {
-//            nameLabel.text = tweet.user!.name
-//            profileImageView.setImageWithURL(NSURL(string: tweet.user!.profileImageUrl!))
-//            let screennameLabel = "@\(tweet.user!.screenname!)"
-            print("in compose VDL")
             print(tweet.user!.screenname!)
             
             tweetTextView.text = "@\(tweet.user!.screenname!)  "

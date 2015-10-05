@@ -114,13 +114,11 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
             navigationItem.title = "Cancel"
 
             if sender != nil {
-                print("in segue sender block")
                 let cell = sender as! UITableViewCell
                 let indexPath = tableView.indexPathForCell(cell)
     
                 let tweet: Tweet
                 tweet = tweets![indexPath!.row]
-                print(tweet.user!.name)
                 
                 vc.tweet = tweet
             }
